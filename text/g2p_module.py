@@ -103,7 +103,7 @@ class G2PModule:
 
     def __init__(
         self,
-        language="en-us",
+        language="el",
         backend="espeak",
         separator=Separator(word="_", syllable="-", phone="|"),
         preserve_punctuation=True,
