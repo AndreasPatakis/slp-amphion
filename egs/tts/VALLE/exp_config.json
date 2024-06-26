@@ -5,7 +5,7 @@
         "libritts"
     ],
     "dataset_path": {
-        "libritts": ""
+        "libritts": "data/processed_el"
 
     },
     "preprocess": {
