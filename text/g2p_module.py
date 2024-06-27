@@ -138,7 +138,7 @@ class G2PModule:
     ):
         if backend == "espeak":
             return EspeakBackend(
-                language,
+                'el',
                 punctuation_marks=punctuation_marks,
                 preserve_punctuation=preserve_punctuation,
                 with_stress=with_stress,
