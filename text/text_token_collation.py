@@ -10,6 +10,8 @@ import numpy as np
 import torch
 from text.symbol_table import SymbolTable
 from text import text_to_sequence
+import json
+
 
 
 """
@@ -29,6 +31,22 @@ class TextTokenCollator:
         bos_symbol: str = "<bos>",
         eos_symbol: str = "<eos>",
     ):
+        original_symbol_to_id = {
+            '<pad>': 0, '<bos>': 1, '<eos>': 2, '!': 3, '"': 4, '(': 5, ')': 6, ',': 7, '.': 8, '1': 9, ':': 10, ';': 11,
+            '<eps>': 12, '?': 13, '_': 14, 'a': 15, 'aɪ': 16, 'aɪw': 17, 'aɪə': 18, 'aɪɚ': 19, 'aɪʊ': 20, 'aɪʊɹ': 21, 'aʊ': 22,
+            'aʊə': 23, 'aː': 24, 'b': 25, 'd': 26, 'dh': 27, 'dt': 28, 'dʑ': 29, 'dʒ': 30, 'e': 31, 'enus': 32, 'es': 33, 'eə': 34,
+            'eɪ': 35, 'f': 36, 'fr': 37, 'fɛ': 38, 'h': 39, 'hi': 40, 'hy': 41, 'i': 42, 'iə': 43, 'iː': 44, 'iːd': 45, 'iːː': 46, 'j': 47,
+            'k': 48, 'kh': 49, 'ko': 50, 'l': 51, 'm': 52, 'n': 53, 'nʲ': 54, 'o': 55, 'oʊ': 56, 'oː': 57, 'oːɹ': 58, 'oːː': 59, 'p': 60, 'ph': 61,
+            'q': 62, 'r': 63, 's': 64, 't': 65, 'ta': 66, 'tw': 67, 'tɕ': 68, 'tʃ': 69, 'u': 70, 'uː': 71, 'uːj': 72, 'v': 73, 'w': 74, 'x': 75,
+            'z': 76, '¡': 77, '«': 78, '»': 79, '¿': 80, 'æ': 81, 'æː': 82, 'ç': 83, 'ð': 84, 'ø': 85, 'ŋ': 86, 'ɐ': 87, 'ɐː': 88, 'ɑ': 89,
+            'ɑː': 90, 'ɑːɹ': 91, 'ɒ': 92, 'ɔ': 93, 'ɔɪ': 94, 'ɔː': 95, 'ɔːɹ': 96, 'ɔːɹt': 97, 'ɖ': 98, 'ə': 99, 'əl': 100, 'ən': 101, 'əʊ': 102,
+            'ɚ': 103, 'ɛ': 104, 'ɛɹ': 105, 'ɛː': 106, 'ɜː': 107, 'ɡ': 108, 'ɡʲ': 109, 'ɣ': 110, 'ɪ': 111, 'ɪɹ': 112, 'ɪː': 113, 'ɫ': 114, 'ɬ': 115,
+            'ɭ': 116, 'ɯ': 117, 'ɲ': 118, 'ɹ': 119, 'ɾ': 120, 'ʁ': 121, 'ʃ': 122, 'ʃm': 123, 'ʈ': 124, 'ʉ': 125, 'ʊ': 126, 'ʊə': 127, 'ʊɹ': 128,
+            'ʌ': 129, 'ʒ': 130, 'ʔ': 131, 'ʰχ': 132, 'ʲ': 133, '̃': 134, '̩': 135, 'β': 136, 'θ': 137, 'ᵻ': 138, '—': 139, '…': 140
+            }
+            
+        mapping = {"u":"u:", "c":"k", "ʎ":"l", "oɪ":"ɔɪ", "ʂ":"s", "ts":"tʃ"}
+        
         self.pad_symbol = pad_symbol
         self.add_eos = add_eos
         self.add_bos = add_bos
@@ -42,8 +60,21 @@ class TextTokenCollator:
             unique_tokens.append(eos_symbol)
         unique_tokens.extend(sorted(text_tokens))
 
-        self.token2idx = {token: idx for idx, token in enumerate(unique_tokens)}
-        self.idx2token = unique_tokens
+        # OUR CODE
+
+        new_phoneme_to_id = {}
+        # Assign IDs to the new phonemes
+        for phoneme in unique_tokens:
+            if phoneme in original_symbol_to_id:
+                new_phoneme_to_id[phoneme] = original_symbol_to_id[phoneme]
+            else:
+                new_phoneme_to_id[phoneme] = original_symbol_to_id[mapping[phoneme]]
+        print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+        print(new_phoneme_to_id)
+        #  END OF OUR CODE
+
+        self.token2idx = {phoneme: idx for phoneme, idx in new_phoneme_to_id.items()}
+        self.idx2token = {idx: phoneme for phoneme, idx in new_phoneme_to_id.items()}
 
     def index(self, tokens_list: List[str]) -> Tuple[torch.Tensor, torch.Tensor]:
         seqs, seq_lens = [], []
